@@ -1,0 +1,91 @@
+---
+title: "languagesearch.Rmd"
+author: "Akila Muthukumar"
+date: "1/30/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(XML)
+library(RCurl)
+library(pdftools)
+library(stringr)
+  
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r functions}
+
+# this function is used to search for English on the website
+
+English_check_context <- function(input){
+  
+  x <- readLines(input)
+  y = grep('English', x, ignore.case = TRUE, value = TRUE)
+  
+  #readLines reads all text from input url into value called x while grep 
+  #searches for word Spanish (not case sensitive) and returns the matching
+  #line index called y
+  
+  y2 <- gsub("<.*?>", "", y)
+  
+  #gsub allows us to take the index and uses a pattern search for HTML
+  #code and replace it with an empty string
+  
+  Eng_list <- set_names(list(y2[1], ifelse(length(y) > 0, TRUE, FALSE)), 
+                        c("context1", "English"))
+  return(Eng_list)
+  
+  #list with two elements (1. the first search hit and 2. TRUE or FALSE value
+  #for the presence of English) is returned
+  
+}
+
+# this function is used to search for English on the website
+  
+Spanish_check_context <- function(input){
+  
+  #follows the same logic as the English function
+  
+    x <- readLines(input)
+    y = grep('Spanish', x, ignore.case = TRUE, value = TRUE)
+    y2 <- gsub("<.*?>", "", y)
+    Span_list <- set_names(list(y2[1], ifelse(length(y) > 0, TRUE, FALSE)), 
+                          c("context", "Spanish"))
+    return(Span_list)
+    
+}
+
+# this function is used to search for English and Spanish in the protocol
+
+English_Spanish_check_PDF <- function(input){
+  
+  x1 <- pdf_text(input)
+  z1 = grep('Spanish', x1, ignore.case = TRUE, value = TRUE)
+  
+  #pdf_text reads all text from an input pdf into x1 for the grep function
+  #to search for word Spanish (not case sensitive) and returns the match
+  
+  z11 = ifelse(length(z1) > 0, TRUE, FALSE)
+  
+  if(z11 == TRUE) {
+    
+    "Spanish"
+    
+    #if Spanish is found the function outputs Spanish and termintes search
+    
+  } else {
+    
+    y1 = grep('English', x1, ignore.case = TRUE, value = TRUE)
+    ifelse(length(y1) > 0, TRUE, FALSE)
+    
+    #if Spanish was not found, the same code is repeated to identify English
+    
+  }
+}      
+
+```
+
